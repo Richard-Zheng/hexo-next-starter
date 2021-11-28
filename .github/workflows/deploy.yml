@@ -11,9 +11,8 @@ jobs:
     - name: Checkout GitHub Pages repository
       uses: actions/checkout@v2
       with:
-        # Repository name with owner. For example, actions/checkout
-        # Default: ${{ github.repository }}
-        repository: 'Richard-Zheng/richard-zheng.github.io'
+        # Fill in your GitHub Pages repository
+        repository: 'YourGithubID/YourGithubID.github.io'
         path: '.deploy_git'
     - name: Setup Node.js environment
       uses: actions/setup-node@v2-beta
@@ -26,7 +25,7 @@ jobs:
     - name: Setup Hexo environment
       run: npm install
 
-    # 从之前设置的 secret 获取部署私钥
+    # Fill in your git config
     - name: Set up environment
       env:
         DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
@@ -36,8 +35,8 @@ jobs:
         echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan github.com >> ~/.ssh/known_hosts
-        git config --global user.email "yuqiu36@live.com"
-        git config --global user.name "Richard-Zheng"
+        git config --global user.email "example@example.com"
+        git config --global user.name "Your name"
 
     # 生成并部署
     - name: Deploy
