@@ -1,0 +1,47 @@
+name: Deploy blog to Github
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Checkout GitHub Pages repository
+      uses: actions/checkout@v2
+      with:
+        # Repository name with owner. For example, actions/checkout
+        # Default: ${{ github.repository }}
+        repository: 'Richard-Zheng/richard-zheng.github.io'
+        path: '.deploy_git'
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: '12'
+    - name: Install pandoc (Latex support)
+      run: |
+        wget -O pandoc.deb https://github.com/jgm/pandoc/releases/download/2.13/pandoc-2.13-1-amd64.deb
+        sudo dpkg -i pandoc.deb
+    - name: Setup Hexo environment
+      run: npm install
+
+    # 从之前设置的 secret 获取部署私钥
+    - name: Set up environment
+      env:
+        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      run: |
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        mkdir -p ~/.ssh
+        echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        git config --global user.email "yuqiu36@live.com"
+        git config --global user.name "Richard-Zheng"
+
+    # 生成并部署
+    - name: Deploy
+      env:
+        MESSAGE: ${{ format('Site updated {0}@{1}', github.repository, github.sha) }}
+      run: |
+        npx hexo deploy --generate --message "$MESSAGE"
